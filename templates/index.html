@@ -211,11 +211,7 @@
           <i class="bi bi-geo-alt me-1"></i> Camps & Booking
         </button>
       </li>
-      <li class="nav-item">
-        <button class="nav-link" id="tab-leaderboard-btn" data-bs-toggle="pill" data-bs-target="#tab-leaderboard" type="button">
-          <i class="bi bi-trophy me-1"></i> Leaderboard
-        </button>
-      </li>
+
       <li class="nav-item">
         <button class="nav-link" id="tab-sql-btn" data-bs-toggle="pill" data-bs-target="#tab-sql" type="button">
           <i class="bi bi-terminal-fill me-1"></i> SQL Console
@@ -760,35 +756,7 @@
         </div>
       </div>
 
-      <!-- ======================================================= -->
-      <!-- TAB 8: LEADERBOARD                                      -->
-      <!-- ======================================================= -->
-      <div class="tab-pane fade" id="tab-leaderboard" role="tabpanel">
-        <div class="card shadow-sm border-0">
-          <div class="card-body p-4">
-            <h5 class="card-title fw-bold text-danger mb-3">
-              <i class="bi bi-award-fill me-2"></i>Top Donor Leaderboard & Tiers
-            </h5>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0" id="table-leaderboard">
-                <thead class="table-light">
-                  <tr>
-                    <th>Rank</th>
-                    <th>Donor Name</th>
-                    <th>Blood Group</th>
-                    <th>Donations</th>
-                    <th>Points</th>
-                    <th>Tier</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td colspan="6" class="text-center py-4 text-muted">Loading leaderboard...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- ======================================================= -->
       <!-- TAB 9: INTERACTIVE SQL CONSOLE                          -->
@@ -852,7 +820,6 @@
       loadLocations();
       loadStockMatrix();
       loadCamps();
-      loadLeaderboard();
       loadPresets();
       loadEligibilityQuestions();
       loadOpenRequests();
@@ -1429,32 +1396,6 @@
       .catch(err => {
         feedback.innerHTML = `<div class="alert alert-danger py-2 small mb-0">Error: ${err.message}</div>`;
       });
-    }
-
-    function loadLeaderboard() {
-      fetch("/api/leaderboard")
-        .then(r => r.json())
-        .then(data => {
-          const tbody = document.querySelector("#table-leaderboard tbody");
-          if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No donor records found.</td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = data.map(d => {
-            const tierClass = `badge-tier-${(d.tier || 'starter').toLowerCase()}`;
-            return `
-              <tr>
-                <td class="fw-bold">${d.position == 1 ? '🥇 1' : d.position == 2 ? '🥈 2' : d.position == 3 ? '🥉 3' : '#' + d.position}</td>
-                <td class="fw-semibold">${d.name}</td>
-                <td><span class="badge bg-danger-subtle text-danger">${d.blood_group}</span></td>
-                <td><span class="fw-bold">${d.donations}</span> donations</td>
-                <td><span class="text-success fw-bold">${d.points} pts</span></td>
-                <td><span class="badge ${tierClass} px-2 py-1">${d.tier}</span></td>
-              </tr>
-            `;
-          }).join("");
-        });
     }
 
     function loadPresets() {

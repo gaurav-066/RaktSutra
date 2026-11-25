@@ -33,8 +33,21 @@
 - Verified HTML diff and formatting across all affected tabs.
 - Verified `RaktSutra_Project.zip` contains updated files.
 
+## Session: 2026-11-25 (Update 10 - Removed Leaderboard Tab from UI)
+
+### What was built / changed
+- Removed Leaderboard navigation pill button (`#tab-leaderboard-btn`) from `templates/index.html`.
+- Removed Leaderboard table card container (`#tab-leaderboard`) from `templates/index.html`.
+- Removed `loadLeaderboard()` initialization call and its fetch function from `templates/index.html`.
+- Rebuilt `RaktSutra_Project.zip` with the updated dashboard template.
+
+### What was tested & passed
+- Verified HTML diff: tab button, tab pane, and JavaScript polling removed cleanly.
+- Verified `RaktSutra_Project.zip` updated with 9 core files.
+
 ### What's next
 - Await user command before pushing latest commit to GitHub.
+
 
 
 
