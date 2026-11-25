@@ -238,7 +238,6 @@
                 <h5 class="fw-bold text-danger mb-0">
                   <i class="bi bi-broadcast-pin me-2"></i>Create Emergency Blood Request
                 </h5>
-                <small class="text-muted">Demonstrates: <code>sp_send_otp</code> &rarr; <code>sp_verify_otp</code> &rarr; <code>sp_create_request</code></small>
               </div>
               <div class="card-body pt-0">
                 
@@ -325,7 +324,6 @@
                   <h5 class="fw-bold text-dark mb-0">
                     <i class="bi bi-bell-fill text-warning me-2"></i>Active Request Matching & Donor Dispatch
                   </h5>
-                  <small class="text-muted">Demonstrates: <code>sp_expand_search</code> &rarr; <code>sp_respond_to_request</code> &rarr; <code>v_accepted_contacts</code></small>
                 </div>
                 <span id="active-req-badge" class="badge bg-secondary">No Request Selected</span>
               </div>
@@ -409,12 +407,9 @@
           <div class="col-lg-8">
             <div class="card shadow-sm border-0">
               <div class="card-body p-4">
-                <h5 class="card-title fw-bold text-danger mb-1">
+                <h5 class="card-title fw-bold text-danger mb-4">
                   <i class="bi bi-person-plus-fill me-2"></i>Donor Registration & Integrity Checks
                 </h5>
-                <p class="small text-muted mb-4">
-                  Tests MySQL database trigger <code>trg_donor_age_check</code>: Donor age must be between 18 and 65 years. Invalid ages are automatically rolled back.
-                </p>
 
                 <form id="form-register-donor">
                   <div class="row g-3">
@@ -502,12 +497,9 @@
           <div class="col-lg-8">
             <div class="card shadow-sm border-0">
               <div class="card-body p-4">
-                <h5 class="card-title fw-bold text-danger mb-1">
+                <h5 class="card-title fw-bold text-danger mb-4">
                   <i class="bi bi-clipboard2-pulse-fill me-2"></i>Donor Screening & Eligibility Evaluation
                 </h5>
-                <p class="small text-muted mb-4">
-                  Demonstrates <code>sp_evaluate_eligibility</code>: evaluates medical answers, applies deferral days (e.g. tattoo: 180 days deferral), or sets permanent ineligibility.
-                </p>
 
                 <div class="mb-3">
                   <label class="form-label small fw-semibold">Select Donor for Evaluation</label>
@@ -749,7 +741,6 @@
                 <h5 class="card-title fw-bold text-primary mb-3">
                   <i class="bi bi-ticket-perforated-fill me-2"></i>Book a Camp Seat
                 </h5>
-                <p class="small text-muted">Tests stored procedure <code>sp_book_camp</code> with concurrency lock and cooldown check.</p>
                 <form id="form-book-camp">
                   <div class="mb-3">
                     <label class="form-label small fw-semibold">Camp</label>

@@ -18,7 +18,23 @@
 - Added remote `origin` (`https://github.com/gaurav-066/RaktSutra.git`).
 - Pushed branch `main` to GitHub: successfully pushed 30 objects to `https://github.com/gaurav-066/RaktSutra.git`.
 
+## Session: 2026-11-25 (Update 9 - Removed Demonstration Subtitles from UI Pages)
+
+### What was built / changed
+- Removed procedure/trigger subtitle lines under page and card headings across all dashboard tabs in `templates/index.html`:
+  - Removed `sp_send_otp -> sp_verify_otp -> sp_create_request` under "Create Emergency Blood Request"
+  - Removed `sp_expand_search -> sp_respond_to_request -> v_accepted_contacts` under "Active Request Matching & Donor Dispatch"
+  - Removed `trg_donor_age_check` trigger note under "Donor Registration & Integrity Checks"
+  - Removed `sp_evaluate_eligibility` demonstration text under "Donor Screening & Eligibility Evaluation"
+  - Removed `sp_book_camp` test text under "Book a Camp Seat"
+- Rebuilt `RaktSutra_Project.zip` with the updated `templates/index.html`.
+
+### What was tested & passed
+- Verified HTML diff and formatting across all affected tabs.
+- Verified `RaktSutra_Project.zip` contains updated files.
+
 ### What's next
-- Repository is live on GitHub at `https://github.com/gaurav-066/RaktSutra`.
+- Await user command before pushing latest commit to GitHub.
+
 
 
