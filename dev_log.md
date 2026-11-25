@@ -15,7 +15,10 @@
 ### What was tested & passed
 - `git status` clean after commit.
 - Staged and committed 23 files (4425 insertions).
+- Added remote `origin` (`https://github.com/gaurav-066/RaktSutra.git`).
+- Pushed branch `main` to GitHub: successfully pushed 30 objects to `https://github.com/gaurav-066/RaktSutra.git`.
 
 ### What's next
-- Set remote GitHub repository URL and execute `git push -u origin main`.
+- Repository is live on GitHub at `https://github.com/gaurav-066/RaktSutra`.
+
 
