@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# MySQL local socket and data
+.mysql_data/
+*.sock
+*.pid
+
+# LibreOffice lock files
+.~lock.*

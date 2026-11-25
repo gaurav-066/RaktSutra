@@ -1,0 +1,17 @@
+{
+  "database": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "user": "root",
+    "password": "",
+    "database": "blood_network",
+    "unix_socket": "/var/run/mysqld/mysqld.sock",
+    "fallback_socket": "/tmp/raktkhoj_mysql.sock",
+    "fallback_port": 3307
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 5000,
+    "debug": true
+  }
+}

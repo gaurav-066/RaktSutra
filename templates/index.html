@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RaktSutra — Blood Network Management System</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-crimson: #c81e2b;
+      --dark-crimson: #8b0000;
+      --light-crimson: #ffebee;
+      --accent-slate: #1e293b;
+    }
+    body {
+      background-color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #334155;
+    }
+    .navbar-brand {
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff !important;
+    }
+    .brand-accent {
+      color: #fca5a5;
+    }
+    .stat-card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      transition: transform 0.15s ease-in-out;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .nav-pills .nav-link {
+      color: #475569;
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 9px 14px;
+      margin-right: 4px;
+      font-size: 0.92rem;
+    }
+    .nav-pills .nav-link.active {
+      background-color: var(--primary-crimson);
+      color: #fff;
+    }
+    .badge-tier-platinum { background-color: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8; }
+    .badge-tier-gold { background-color: #fef08a; color: #854d0e; }
+    .badge-tier-silver { background-color: #f1f5f9; color: #475569; }
+    .badge-tier-bronze { background-color: #fed7aa; color: #9a3412; }
+    .badge-tier-starter { background-color: #e2e8f0; color: #64748b; }
+    .sql-editor {
+      font-family: 'Fira Code', Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 0.9rem;
+      background-color: #0f172a;
+      color: #f8fafc;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 140px;
+    }
+    .sql-editor:focus {
+      background-color: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(200, 30, 43, 0.35);
+    }
+    .table-container {
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    .step-badge {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      border-radius: 50%;
+      background-color: #e2e8f0;
+      color: #334155;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .step-active .step-badge {
+      background-color: var(--primary-crimson);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" style="background-color: #1e1e24 !important;">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <i class="bi bi-droplet-fill text-danger fs-3 me-2"></i>
+        <span>RAKT<span class="brand-accent">SUTRA</span></span>
+        <span class="badge bg-danger ms-2 px-2 py-1 fs-8">DBMS LIVE</span>
+      </a>
+      <div class="d-flex align-items-center text-white-50 small">
+        <span class="me-3"><i class="bi bi-database me-1 text-success"></i> blood_network</span>
+        <span><i class="bi bi-cpu me-1 text-info"></i> MySQL 8.0</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-4 py-4">
+
+    <!-- KPI Metric Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card stat-card p-3 bg-white">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-danger-subtle text-danger me-3">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <div>
+              <div class="text-muted small text-uppercase fw-semibold">Registered Donors</div>
+              <h3 class="mb-0 fw-bold" id="kpi-donors">--</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stat-card p-3 bg-white">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-primary-subtle text-primary me-3">
+              <i class="bi bi-hospital"></i>
+            </div>
+            <div>
+              <div class="text-muted small text-uppercase fw-semibold">Blood Centres</div>
+              <h3 class="mb-0 fw-bold" id="kpi-centres">--</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stat-card p-3 bg-white">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-success-subtle text-success me-3">
+              <i class="bi bi-calendar-event"></i>
+            </div>
+            <div>
+              <div class="text-muted small text-uppercase fw-semibold">Active Camps</div>
+              <h3 class="mb-0 fw-bold" id="kpi-camps">--</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stat-card p-3 bg-white border-start border-danger border-4">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-warning-subtle text-warning me-3">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div>
+              <div class="text-muted small text-uppercase fw-semibold">Shortage Alert</div>
+              <h6 class="mb-0 fw-bold text-danger" id="kpi-shortage">Scanning...</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-3 bg-white p-2 rounded shadow-sm border" id="pills-tab" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active" id="tab-request-flow-btn" data-bs-toggle="pill" data-bs-target="#tab-request-flow" type="button">
+          <i class="bi bi-broadcast me-1 text-danger"></i> Emergency Request Flow
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-donor-reg-btn" data-bs-toggle="pill" data-bs-target="#tab-donor-reg" type="button">
+          <i class="bi bi-person-plus-fill me-1"></i> Donor Registration
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-eligibility-btn" data-bs-toggle="pill" data-bs-target="#tab-eligibility" type="button">
+          <i class="bi bi-clipboard2-check-fill me-1"></i> Eligibility Self-Check
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-banks-btn" data-bs-toggle="pill" data-bs-target="#tab-banks" type="button">
+          <i class="bi bi-search me-1"></i> Find Blood Banks
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-donors-btn" data-bs-toggle="pill" data-bs-target="#tab-donors" type="button">
+          <i class="bi bi-person-lines-fill me-1"></i> Find Donors
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-stock-btn" data-bs-toggle="pill" data-bs-target="#tab-stock" type="button">
+          <i class="bi bi-grid-3x3-gap me-1"></i> Stock Matrix
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-camps-btn" data-bs-toggle="pill" data-bs-target="#tab-camps" type="button">
+          <i class="bi bi-geo-alt me-1"></i> Camps & Booking
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-leaderboard-btn" data-bs-toggle="pill" data-bs-target="#tab-leaderboard" type="button">
+          <i class="bi bi-trophy me-1"></i> Leaderboard
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tab-sql-btn" data-bs-toggle="pill" data-bs-target="#tab-sql" type="button">
+          <i class="bi bi-terminal-fill me-1"></i> SQL Console
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Contents -->
+    <div class="tab-content" id="pills-tabContent">
+
+      <!-- ======================================================= -->
+      <!-- TAB 1: EMERGENCY REQUEST LIFECYCLE (THE CORE FLOW)      -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade show active" id="tab-request-flow" role="tabpanel">
+        <div class="row g-4">
+          <!-- Left Column: Create Request Wizard -->
+          <div class="col-lg-5">
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold text-danger mb-0">
+                  <i class="bi bi-broadcast-pin me-2"></i>Create Emergency Blood Request
+                </h5>
+                <small class="text-muted">Demonstrates: <code>sp_send_otp</code> &rarr; <code>sp_verify_otp</code> &rarr; <code>sp_create_request</code></small>
+              </div>
+              <div class="card-body pt-0">
+                
+                <!-- Sub-step 1: Mobile & OTP -->
+                <div class="border rounded p-3 mb-3 bg-light">
+                  <div class="fw-bold small text-uppercase text-secondary mb-2">Step 1: Requester Mobile & OTP Verification</div>
+                  <div class="row g-2 mb-2">
+                    <div class="col-8">
+                      <input type="text" class="form-control form-control-sm" id="req-phone" value="9333333301" placeholder="10-digit Mobile">
+                    </div>
+                    <div class="col-4">
+                      <button class="btn btn-sm btn-outline-danger w-100" id="btn-send-req-otp">Send OTP</button>
+                    </div>
+                  </div>
+                  <div id="otp-demo-display" class="small mb-2 text-primary" style="display:none;"></div>
+                  <div class="row g-2">
+                    <div class="col-8">
+                      <input type="text" class="form-control form-control-sm" id="req-otp-code" placeholder="Enter 6-digit OTP">
+                    </div>
+                    <div class="col-4">
+                      <button class="btn btn-sm btn-success w-100" id="btn-verify-req-otp">Verify OTP</button>
+                    </div>
+                  </div>
+                  <div id="otp-verify-feedback" class="small mt-2"></div>
+                </div>
+
+                <!-- Sub-step 2: Request Details -->
+                <form id="form-create-request">
+                  <div class="mb-2">
+                    <label class="form-label small fw-semibold">Requester Name</label>
+                    <input type="text" class="form-control form-control-sm" id="req-name" value="Dr. Ramesh Gupta" required>
+                  </div>
+                  <div class="row g-2 mb-2">
+                    <div class="col-6">
+                      <label class="form-label small fw-semibold">Patient Blood Group</label>
+                      <select class="form-select form-select-sm" id="req-blood-group" required>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+" selected>O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small fw-semibold">Units Needed</label>
+                      <input type="number" class="form-control form-control-sm" id="req-units" value="2" min="1" max="5" required>
+                    </div>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label small fw-semibold">Hospital</label>
+                    <select class="form-select form-select-sm" id="req-hospital" required></select>
+                  </div>
+                  <div class="row g-2 mb-3">
+                    <div class="col-6">
+                      <label class="form-label small fw-semibold">Urgency</label>
+                      <select class="form-select form-select-sm" id="req-urgency">
+                        <option value="Urgent" selected>Urgent</option>
+                        <option value="Normal">Normal</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small fw-semibold">Valid (Hours)</label>
+                      <input type="number" class="form-control form-control-sm" id="req-valid-hours" value="24" min="1" max="72">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-danger btn-sm w-100 fw-semibold">
+                    <i class="bi bi-file-earmark-plus me-1"></i> Submit Blood Request
+                  </button>
+                </form>
+                <div id="req-create-feedback" class="mt-2 small"></div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Notify Donors & Matching Simulation -->
+          <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-bell-fill text-warning me-2"></i>Active Request Matching & Donor Dispatch
+                  </h5>
+                  <small class="text-muted">Demonstrates: <code>sp_expand_search</code> &rarr; <code>sp_respond_to_request</code> &rarr; <code>v_accepted_contacts</code></small>
+                </div>
+                <span id="active-req-badge" class="badge bg-secondary">No Request Selected</span>
+              </div>
+              <div class="card-body pt-0">
+                <div class="p-3 bg-light rounded mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="small fw-semibold text-muted">Select Existing Request:</span>
+                    <select class="form-select form-select-sm w-auto" id="existing-request-select">
+                      <option value="">-- Choose Open Request --</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-open-requests" title="Refresh Requests List">
+                      <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                  </div>
+                  <div>
+                    <span class="small fw-semibold text-muted">Active Request ID:</span>
+                    <span class="fw-bold ms-1 text-danger" id="active-req-id">None</span>
+                    <span class="ms-3 small fw-semibold text-muted">Status:</span>
+                    <span class="badge bg-secondary ms-1" id="active-req-status-pill">--</span>
+                  </div>
+                  <div class="d-flex align-items-center ms-auto">
+                    <label class="small me-2">Min Donors:</label>
+                    <input type="number" class="form-control form-control-sm w-auto me-2" id="expand-min-count" value="4" min="1" max="15">
+                    <button class="btn btn-sm btn-primary" id="btn-expand-search" disabled>
+                      <i class="bi bi-search me-1"></i> Notify Donors (Expand Radius)
+                    </button>
+                  </div>
+                </div>
+
+                <div id="expand-search-summary" class="small mb-3"></div>
+
+                <h6 class="fw-bold small text-uppercase text-secondary mb-2">Contacted Donors Queue</h6>
+                <div class="table-responsive mb-4">
+                  <table class="table table-sm table-hover align-middle mb-0 font-monospace small" id="table-request-contacts">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Contact #</th>
+                        <th>Donor</th>
+                        <th>Group</th>
+                        <th>Radius</th>
+                        <th>Status</th>
+                        <th>Simulate Donor Response</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td colspan="6" class="text-center py-3 text-muted">Create or select a request above to notify donors.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <h6 class="fw-bold small text-uppercase text-danger mb-2">
+                  <i class="bi bi-shield-check me-1"></i> Privacy Protected Contacts (<span class="text-muted">Phones revealed ONLY upon acceptance</span>)
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered align-middle mb-0 small" id="table-accepted-revealed">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Donor ID</th>
+                        <th>Donor Full Name</th>
+                        <th>Verified Mobile Phone</th>
+                        <th>Responded At</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td colspan="4" class="text-center py-3 text-muted">No donors have accepted yet. Once units are matched, contact phones appear here.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 2: DONOR REGISTRATION & AGE VALIDATION TRIGGER      -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-donor-reg" role="tabpanel">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+              <div class="card-body p-4">
+                <h5 class="card-title fw-bold text-danger mb-1">
+                  <i class="bi bi-person-plus-fill me-2"></i>Donor Registration & Integrity Checks
+                </h5>
+                <p class="small text-muted mb-4">
+                  Tests MySQL database trigger <code>trg_donor_age_check</code>: Donor age must be between 18 and 65 years. Invalid ages are automatically rolled back.
+                </p>
+
+                <form id="form-register-donor">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Full Name</label>
+                      <input type="text" class="form-control form-control-sm" id="reg-name" placeholder="e.g. Rahul Sharma" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Date of Birth</label>
+                      <input type="date" class="form-control form-control-sm" id="reg-dob" value="2000-05-15" required>
+                      <div class="form-text small">Try setting DOB to <code>2015-01-01</code> to test the age trigger rejection!</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label small fw-semibold">Gender</label>
+                      <select class="form-select form-select-sm" id="reg-gender" required>
+                        <option value="Male">Male (90 day cooldown)</option>
+                        <option value="Female">Female (120 day cooldown)</option>
+                        <option value="Other">Other (120 day cooldown)</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label small fw-semibold">Blood Group</label>
+                      <select class="form-select form-select-sm" id="reg-blood-group" required>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+" selected>O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label small fw-semibold">District</label>
+                      <select class="form-select form-select-sm" id="reg-district" required></select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Mobile Phone (10-digit Indian)</label>
+                      <input type="text" class="form-control form-control-sm" id="reg-phone" placeholder="e.g. 9829012345" required>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label small fw-semibold">Latitude</label>
+                      <input type="text" class="form-control form-control-sm" id="reg-lat" value="26.9124">
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label small fw-semibold">Longitude</label>
+                      <input type="text" class="form-control form-control-sm" id="reg-lng" value="75.7873">
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <button type="submit" class="btn btn-danger fw-semibold px-4">Register Donor</button>
+                  </div>
+                </form>
+
+                <div id="donor-reg-feedback" class="mt-3"></div>
+
+                <!-- OTP Verification Modal / Box -->
+                <div id="donor-reg-otp-box" class="border rounded p-3 mt-3 bg-light" style="display:none;">
+                  <h6 class="fw-bold text-success"><i class="bi bi-shield-check me-1"></i> Verify Registered Mobile Number</h6>
+                  <p class="small text-muted mb-2">A simulated SMS OTP was dispatched by <code>sp_send_otp</code>.</p>
+                  <div class="row g-2 align-items-center">
+                    <div class="col-auto">
+                      <input type="text" class="form-control form-control-sm font-monospace" id="reg-verify-otp-input" placeholder="6-digit OTP">
+                    </div>
+                    <div class="col-auto">
+                      <button class="btn btn-sm btn-success fw-semibold" id="btn-verify-donor-otp">Complete Phone Verification</button>
+                    </div>
+                  </div>
+                  <div id="donor-otp-verify-feedback" class="small mt-2"></div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 3: ELIGIBILITY SELF-CHECK QUESTIONNAIRE             -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-eligibility" role="tabpanel">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+              <div class="card-body p-4">
+                <h5 class="card-title fw-bold text-danger mb-1">
+                  <i class="bi bi-clipboard2-pulse-fill me-2"></i>Donor Screening & Eligibility Evaluation
+                </h5>
+                <p class="small text-muted mb-4">
+                  Demonstrates <code>sp_evaluate_eligibility</code>: evaluates medical answers, applies deferral days (e.g. tattoo: 180 days deferral), or sets permanent ineligibility.
+                </p>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Select Donor for Evaluation</label>
+                  <select class="form-select form-select-sm" id="eligibility-donor-select"></select>
+                </div>
+
+                <form id="form-eligibility">
+                  <div id="questions-container" class="border rounded p-3 bg-light mb-3">
+                    <div class="text-muted small">Loading screening questions from database...</div>
+                  </div>
+                  <button type="submit" class="btn btn-primary fw-semibold px-4">Evaluate Eligibility</button>
+                </form>
+
+                <div id="eligibility-feedback" class="mt-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 4: FIND BLOOD BANKS                                 -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-banks" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title fw-bold text-danger mb-3">
+              <i class="bi bi-geo-fill me-2"></i>Find Compatible Blood Banks
+            </h5>
+            <div class="row g-3 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label fw-semibold small">Patient Blood Group</label>
+                <select class="form-select" id="bank-blood-group">
+                  <option value="A+" selected>A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold small">Reference Location</label>
+                <select class="form-select" id="bank-location-preset">
+                  <option value="26.9124,75.7873" selected>Jaipur District Center (26.9124, 75.7873)</option>
+                  <option value="26.8500,75.8000">Aravali City Hospital (Org #9)</option>
+                  <option value="25.2138,75.8647">Kota District Center</option>
+                  <option value="19.0760,72.8777">Mumbai District Center</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold small">Search Radius: <span id="bank-radius-val" class="text-danger fw-bold">25</span> km</label>
+                <input type="range" class="form-range" id="bank-radius" min="5" max="100" step="5" value="25">
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-danger w-100 fw-semibold" id="btn-search-banks">
+                  <i class="bi bi-search me-1"></i> Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0" id="table-banks">
+                <thead class="table-light">
+                  <tr>
+                    <th>Bank Name</th>
+                    <th>Type</th>
+                    <th>Phone</th>
+                    <th>Distance (km)</th>
+                    <th>Compatible Units</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="6" class="text-center py-4 text-muted">Click Search to load nearby blood centres</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 5: FIND DONORS                                      -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-donors" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title fw-bold text-danger mb-3">
+              <i class="bi bi-person-check-fill me-2"></i>Find Active & Cooldown-Cleared Donors
+            </h5>
+            <div class="row g-3 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label fw-semibold small">Required Blood Group</label>
+                <select class="form-select" id="donor-blood-group">
+                  <option value="A+" selected>A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold small">Location</label>
+                <select class="form-select" id="donor-location-preset">
+                  <option value="26.9124,75.7873" selected>Jaipur District Center (26.9124, 75.7873)</option>
+                  <option value="26.8500,75.8000">Aravali City Hospital (Org #9)</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold small">Radius: <span id="donor-radius-val" class="text-danger fw-bold">25</span> km</label>
+                <input type="range" class="form-range" id="donor-radius" min="5" max="50" step="5" value="25">
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-danger w-100 fw-semibold" id="btn-search-donors">
+                  <i class="bi bi-search me-1"></i> Search Donors
+                </button>
+              </div>
+            </div>
+            <div class="alert alert-info mt-3 py-2 small mb-0">
+              <i class="bi bi-shield-lock-fill me-1"></i> <strong>Privacy Enforced:</strong> Per system policy, only first names and distance are displayed until a donor officially accepts an OTP-verified blood request.
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0" id="table-donors">
+                <thead class="table-light">
+                  <tr>
+                    <th>Donor ID</th>
+                    <th>First Name</th>
+                    <th>Blood Group</th>
+                    <th>Distance (km)</th>
+                    <th>Eligibility Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="5" class="text-center py-4 text-muted">Click Search Donors to query</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 6: STOCK MATRIX                                     -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-stock" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title fw-bold text-danger mb-0">
+                <i class="bi bi-grid-3x3-gap-fill me-2"></i>Blood Stock Inventory Matrix
+              </h5>
+              <div class="d-flex align-items-center">
+                <label class="me-2 small fw-semibold">District:</label>
+                <select class="form-select form-select-sm w-auto" id="stock-district">
+                  <option value="Jaipur" selected>Jaipur</option>
+                  <option value="Kota">Kota</option>
+                  <option value="Mumbai">Mumbai</option>
+                  <option value="Pune">Pune</option>
+                </select>
+                <button class="btn btn-sm btn-outline-danger ms-2" id="btn-refresh-stock">
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+              </div>
+            </div>
+            <div id="stock-shortage-alert"></div>
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover align-middle text-center mb-0" id="table-stock-matrix">
+                <thead class="table-light">
+                  <tr>
+                    <th class="text-start">Blood Bank</th>
+                    <th>A+</th>
+                    <th>A-</th>
+                    <th>B+</th>
+                    <th>B-</th>
+                    <th>O+</th>
+                    <th>O-</th>
+                    <th>AB+</th>
+                    <th>AB-</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="9" class="text-center py-4 text-muted">Loading inventory data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 7: CAMPS & SEAT BOOKING                             -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-camps" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+              <div class="card-body p-4">
+                <h5 class="card-title fw-bold text-danger mb-3">
+                  <i class="bi bi-calendar2-heart-fill me-2"></i>Upcoming Blood Donation Camps
+                </h5>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0" id="table-camps">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Camp Title</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Conducted By</th>
+                        <th>Seats Left</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td colspan="6" class="text-center py-4 text-muted">Loading camps...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-body p-4">
+                <h5 class="card-title fw-bold text-primary mb-3">
+                  <i class="bi bi-ticket-perforated-fill me-2"></i>Book a Camp Seat
+                </h5>
+                <p class="small text-muted">Tests stored procedure <code>sp_book_camp</code> with concurrency lock and cooldown check.</p>
+                <form id="form-book-camp">
+                  <div class="mb-3">
+                    <label class="form-label small fw-semibold">Camp</label>
+                    <select class="form-select form-select-sm" id="book-camp-select" required></select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-semibold">Donor ID</label>
+                    <input type="number" class="form-control form-control-sm" id="book-donor-id" value="32" placeholder="e.g. 32" required>
+                    <div class="form-text small">Donor 32 is eligible; Donor 17 is within cooldown (expected to fail).</div>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">Confirm Booking</button>
+                </form>
+                <div id="booking-feedback" class="mt-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 8: LEADERBOARD                                      -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-leaderboard" role="tabpanel">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h5 class="card-title fw-bold text-danger mb-3">
+              <i class="bi bi-award-fill me-2"></i>Top Donor Leaderboard & Tiers
+            </h5>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0" id="table-leaderboard">
+                <thead class="table-light">
+                  <tr>
+                    <th>Rank</th>
+                    <th>Donor Name</th>
+                    <th>Blood Group</th>
+                    <th>Donations</th>
+                    <th>Points</th>
+                    <th>Tier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="6" class="text-center py-4 text-muted">Loading leaderboard...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- TAB 9: INTERACTIVE SQL CONSOLE                          -->
+      <!-- ======================================================= -->
+      <div class="tab-pane fade" id="tab-sql" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title fw-bold text-danger mb-0">
+                <i class="bi bi-terminal-fill me-2"></i>Interactive SQL Query Runner
+              </h5>
+              <div class="d-flex align-items-center">
+                <label class="me-2 small fw-semibold">Preset Demo Queries:</label>
+                <select class="form-select form-select-sm w-auto" id="sql-presets">
+                  <option value="">-- Choose a query --</option>
+                </select>
+              </div>
+            </div>
+            
+            <textarea class="form-control sql-editor mb-3" id="sql-input" placeholder="Type your SQL command here (SELECT, CALL, INSERT, UPDATE, EXPLAIN)...">SELECT * FROM v_home_stats;</textarea>
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="text-muted small">
+                <i class="bi bi-info-circle me-1"></i> Executes directly against <code>blood_network</code>. Supports multi-statements, stored procedures, and triggers.
+              </div>
+              <div>
+                <button class="btn btn-outline-secondary btn-sm me-2" id="btn-clear-sql">Clear</button>
+                <button class="btn btn-danger fw-semibold px-4" id="btn-run-sql">
+                  <i class="bi bi-play-fill me-1"></i> Run SQL
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold mb-0">Query Results</h6>
+              <span id="sql-meta" class="small text-muted"></span>
+            </div>
+            <div id="sql-output" class="table-container">
+              <div class="text-muted small p-3">Click "Run SQL" to execute and view results.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let activeRequestId = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      loadStats();
+      loadLocations();
+      loadStockMatrix();
+      loadCamps();
+      loadLeaderboard();
+      loadPresets();
+      loadEligibilityQuestions();
+      loadOpenRequests();
+
+      // Sliders label updates
+      document.getElementById("bank-radius").addEventListener("input", e => {
+        document.getElementById("bank-radius-val").textContent = e.target.value;
+      });
+      document.getElementById("donor-radius").addEventListener("input", e => {
+        document.getElementById("donor-radius-val").textContent = e.target.value;
+      });
+
+      // Search Banks & Donors
+      document.getElementById("btn-search-banks").addEventListener("click", searchBanks);
+      document.getElementById("btn-search-donors").addEventListener("click", searchDonors);
+      document.getElementById("btn-refresh-stock").addEventListener("click", loadStockMatrix);
+      document.getElementById("stock-district").addEventListener("change", loadStockMatrix);
+
+      // Existing Requests dropdown
+      document.getElementById("existing-request-select").addEventListener("change", function () {
+        if (this.value) {
+          selectActiveRequest(this.value);
+        }
+      });
+      document.getElementById("btn-refresh-open-requests").addEventListener("click", loadOpenRequests);
+
+      // Camp Booking Form
+      document.getElementById("form-book-camp").addEventListener("submit", bookCampSubmit);
+
+      // Core Flow 1: Request & OTP
+      document.getElementById("btn-send-req-otp").addEventListener("click", sendRequesterOTP);
+      document.getElementById("btn-verify-req-otp").addEventListener("click", verifyRequesterOTP);
+      document.getElementById("form-create-request").addEventListener("submit", createRequestSubmit);
+      document.getElementById("btn-expand-search").addEventListener("click", expandSearchSubmit);
+
+      // Core Flow 2: Donor Registration
+      document.getElementById("form-register-donor").addEventListener("submit", registerDonorSubmit);
+      document.getElementById("btn-verify-donor-otp").addEventListener("click", verifyDonorOTP);
+
+      // Core Flow 3: Eligibility Self Check
+      document.getElementById("form-eligibility").addEventListener("submit", submitEligibilityAnswers);
+
+      // SQL Runner
+      document.getElementById("btn-run-sql").addEventListener("click", runSQL);
+      document.getElementById("btn-clear-sql").addEventListener("click", () => {
+        document.getElementById("sql-input").value = "";
+      });
+      document.getElementById("sql-presets").addEventListener("change", function () {
+        if (this.value) {
+          document.getElementById("sql-input").value = this.value;
+        }
+      });
+    });
+
+    // 1. KPI Stats
+    function loadStats() {
+      fetch("/api/stats")
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById("kpi-donors").textContent = data.registered_donors || 0;
+          document.getElementById("kpi-centres").textContent = data.blood_centres || 0;
+          document.getElementById("kpi-camps").textContent = data.camps || 0;
+        })
+        .catch(err => console.error("Error loading stats:", err));
+    }
+
+    // 2. Locations (Districts & Hospitals)
+    function loadLocations() {
+      fetch("/api/locations")
+        .then(r => r.json())
+        .then(data => {
+          // Populate Hospitals dropdown
+          const hospSelect = document.getElementById("req-hospital");
+          hospSelect.innerHTML = data.hospitals.map(h => `<option value="${h.org_id}">#${h.org_id} - ${h.name}</option>`).join("");
+
+          // Populate Districts dropdown for donor registration
+          const distSelect = document.getElementById("reg-district");
+          distSelect.innerHTML = data.districts.map(d => `<option value="${d.district_id}">${d.name}</option>`).join("");
+        });
+    }
+
+    // =========================================================
+    // FLOW 1: REQUEST & OTP & EXPAND SEARCH & RESPOND
+    // =========================================================
+    function sendRequesterOTP() {
+      const phone = document.getElementById("req-phone").value.trim();
+      const display = document.getElementById("otp-demo-display");
+      display.style.display = "block";
+      display.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Sending OTP...';
+
+      fetch("/api/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phone, purpose: "Blood Request" })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          display.innerHTML = `<span class="badge bg-success-subtle text-success me-1">SMS Sent</span> Demo OTP Code: <strong class="fs-6">${res.demo_otp}</strong>`;
+          document.getElementById("req-otp-code").value = res.demo_otp;
+        } else {
+          display.innerHTML = `<span class="text-danger">${res.error_message}</span>`;
+        }
+      });
+    }
+
+    function verifyRequesterOTP() {
+      const phone = document.getElementById("req-phone").value.trim();
+      const code = document.getElementById("req-otp-code").value.trim();
+      const feedback = document.getElementById("otp-verify-feedback");
+
+      fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phone, purpose: "Blood Request", otp_code: code })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          feedback.innerHTML = '<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Phone verified for Blood Request!</span>';
+        } else {
+          feedback.innerHTML = `<span class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i> ${res.error_message}</span>`;
+        }
+      });
+    }
+
+    function createRequestSubmit(e) {
+      e.preventDefault();
+      const feedback = document.getElementById("req-create-feedback");
+      feedback.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creating Blood Request...';
+
+      const payload = {
+        requester_name: document.getElementById("req-name").value.trim(),
+        requester_phone: document.getElementById("req-phone").value.trim(),
+        patient_blood_grp: document.getElementById("req-blood-group").value,
+        units_needed: document.getElementById("req-units").value,
+        hospital_org_id: document.getElementById("req-hospital").value,
+        urgency: document.getElementById("req-urgency").value,
+        valid_hours: document.getElementById("req-valid-hours").value
+      };
+
+      fetch("/api/request/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          feedback.innerHTML = `<div class="alert alert-success py-2 small mb-0"><i class="bi bi-check-circle-fill me-1"></i> ${res.message}</div>`;
+          activeRequestId = res.request_id;
+          document.getElementById("active-req-id").textContent = `#${res.request_id}`;
+          document.getElementById("active-req-badge").textContent = `Request #${res.request_id} Active`;
+          document.getElementById("active-req-badge").className = "badge bg-danger";
+          document.getElementById("active-req-status-pill").textContent = "Open";
+          document.getElementById("active-req-status-pill").className = "badge bg-warning text-dark ms-1";
+          document.getElementById("btn-expand-search").disabled = false;
+          loadOpenRequests();
+          refreshRequestStatus(res.request_id);
+        } else {
+          feedback.innerHTML = `<div class="alert alert-danger py-2 small mb-0"><i class="bi bi-x-circle-fill me-1"></i> ${res.error_message}</div>`;
+        }
+      });
+    }
+
+    function expandSearchSubmit() {
+      if (!activeRequestId) return;
+      const minCount = document.getElementById("expand-min-count").value;
+      const summary = document.getElementById("expand-search-summary");
+      summary.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Calling sp_expand_search...';
+
+      fetch("/api/request/expand-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id: activeRequestId, min_contacts: minCount })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          summary.innerHTML = `<div class="alert alert-info py-2 small mb-0"><i class="bi bi-broadcast me-1"></i> <strong>sp_expand_search executed:</strong> Contacted <strong>${res.donors_contacted}</strong> donors within <strong>${res.radius_reached_km} km</strong>.</div>`;
+          renderContactsTable(res.contacts);
+        } else {
+          summary.innerHTML = `<div class="alert alert-danger py-2 small mb-0">${res.error_message}</div>`;
+        }
+      });
+    }
+
+    function renderContactsTable(contacts) {
+      const tbody = document.querySelector("#table-request-contacts tbody");
+      if (!contacts || contacts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-warning">No donors matched within search radius.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = contacts.map(c => `
+        <tr>
+          <td><code>#${c.contact_id}</code></td>
+          <td class="fw-semibold">${c.donor_first_name}</td>
+          <td><span class="badge bg-danger-subtle text-danger">${c.blood_group}</span></td>
+          <td>${c.radius_km} km</td>
+          <td><span class="badge ${c.status === 'Accepted' ? 'bg-success' : c.status === 'Declined' ? 'bg-danger' : 'bg-warning text-dark'}">${c.status}</span></td>
+          <td>
+            ${c.status === 'Sent' ? `
+              <button class="btn btn-sm btn-outline-success py-0 px-2 me-1" onclick="respondToContact(${c.contact_id}, 'Accepted')">Accept</button>
+              <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="respondToContact(${c.contact_id}, 'Declined')">Decline</button>
+            ` : `<span class="text-muted small">${c.status}</span>`}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function respondToContact(contactId, response) {
+      fetch("/api/request/respond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contact_id: contactId, response: response })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          if (activeRequestId) refreshRequestStatus(activeRequestId);
+        } else {
+          alert("Error: " + res.error_message);
+        }
+      });
+    }
+
+    function loadOpenRequests() {
+      fetch("/api/open-requests")
+        .then(r => r.json())
+        .then(requests => {
+          const select = document.getElementById("existing-request-select");
+          if (!requests || requests.length === 0) {
+            select.innerHTML = '<option value="">-- No Requests Found --</option>';
+            return;
+          }
+          select.innerHTML = '<option value="">-- Choose Existing Request --</option>' +
+            requests.map(r => `<option value="${r.request_id}">#${r.request_id} - ${r.patient_blood_grp} (${r.units_needed} units) [${r.status}] - ${r.hospital_name}</option>`).join("");
+          if (activeRequestId) {
+            select.value = activeRequestId;
+          }
+        })
+        .catch(err => console.error("Error loading open requests:", err));
+    }
+
+    function selectActiveRequest(reqId) {
+      activeRequestId = reqId;
+      document.getElementById("active-req-id").textContent = `#${reqId}`;
+      document.getElementById("active-req-badge").textContent = `Request #${reqId} Active`;
+      document.getElementById("active-req-badge").className = "badge bg-danger";
+      document.getElementById("btn-expand-search").disabled = false;
+      refreshRequestStatus(reqId);
+    }
+
+    function refreshRequestStatus(reqId) {
+      fetch(`/api/request/${reqId}/status`)
+        .then(r => r.json())
+        .then(res => {
+          if (!res.success) return;
+          const status = res.request.status;
+          const pill = document.getElementById("active-req-status-pill");
+          pill.textContent = status;
+          pill.className = `badge ${status === 'Matched' ? 'bg-success' : status === 'Open' ? 'bg-warning text-dark' : 'bg-secondary'} ms-1`;
+
+          renderContactsTable(res.contacts);
+
+          // Render privacy-revealed accepted donors
+          const accTbody = document.querySelector("#table-accepted-revealed tbody");
+          if (!res.accepted_donors || res.accepted_donors.length === 0) {
+            accTbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">No accepted contacts yet.</td></tr>';
+          } else {
+            accTbody.innerHTML = res.accepted_donors.map(d => `
+              <tr class="table-success">
+                <td><code>#${d.donor_id}</code></td>
+                <td class="fw-bold">${d.donor_name}</td>
+                <td><code class="fs-6 text-dark">${d.donor_phone}</code></td>
+                <td><small class="text-muted">${d.responded_at}</small></td>
+              </tr>
+            `).join("");
+          }
+        });
+    }
+
+    // =========================================================
+    // FLOW 2: DONOR REGISTRATION WITH AGE TRIGGER & OTP
+    // =========================================================
+    let pendingDonorPhone = null;
+
+    function registerDonorSubmit(e) {
+      e.preventDefault();
+      const feedback = document.getElementById("donor-reg-feedback");
+      feedback.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Validating & Registering...';
+
+      const payload = {
+        name: document.getElementById("reg-name").value.trim(),
+        dob: document.getElementById("reg-dob").value,
+        gender: document.getElementById("reg-gender").value,
+        blood_group: document.getElementById("reg-blood-group").value,
+        phone: document.getElementById("reg-phone").value.trim(),
+        district_id: document.getElementById("reg-district").value,
+        latitude: document.getElementById("reg-lat").value,
+        longitude: document.getElementById("reg-lng").value
+      };
+
+      fetch("/api/donor/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          feedback.innerHTML = `<div class="alert alert-success py-2 small mb-0"><i class="bi bi-check-circle-fill me-1"></i> ${res.message} (Donor ID: #${res.donor_id})</div>`;
+          pendingDonorPhone = payload.phone;
+          document.getElementById("donor-reg-otp-box").style.display = "block";
+          document.getElementById("reg-verify-otp-input").value = res.demo_otp || "";
+          loadStats();
+          loadEligibilityQuestions();
+        } else {
+          feedback.innerHTML = `<div class="alert alert-danger py-2 small mb-0"><i class="bi bi-exclamation-octagon-fill me-1"></i> <strong>Trigger / Constraint Rejection:</strong> ${res.error_message}</div>`;
+        }
+      });
+    }
+
+    function verifyDonorOTP() {
+      if (!pendingDonorPhone) return;
+      const code = document.getElementById("reg-verify-otp-input").value.trim();
+      const feedback = document.getElementById("donor-otp-verify-feedback");
+
+      fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: pendingDonorPhone, purpose: "Donor Registration", otp_code: code })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          feedback.innerHTML = '<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Mobile number verified! Donor is now fully active.</span>';
+        } else {
+          feedback.innerHTML = `<span class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i> ${res.error_message}</span>`;
+        }
+      });
+    }
+
+    // =========================================================
+    // FLOW 3: ELIGIBILITY SELF-CHECK
+    // =========================================================
+    function loadEligibilityQuestions() {
+      fetch("/api/eligibility/questions")
+        .then(r => r.json())
+        .then(questions => {
+          const container = document.getElementById("questions-container");
+          container.innerHTML = questions.map(q => `
+            <div class="row align-items-center py-2 border-bottom">
+              <div class="col-md-9 small">
+                <span class="fw-bold me-2">Q${q.question_id}:</span> ${q.question_text}
+                <div class="text-muted" style="font-size:0.75rem;">Disqualifying: <strong>${q.disqualifying_answer}</strong> &rarr; ${q.outcome} ${q.deferral_days ? '(' + q.deferral_days + ' days)' : ''}</div>
+              </div>
+              <div class="col-md-3 text-end">
+                <div class="btn-group btn-group-sm" role="group">
+                  <input type="radio" class="btn-check" name="q_${q.question_id}" id="q_${q.question_id}_no" value="No" checked>
+                  <label class="btn btn-outline-success" for="q_${q.question_id}_no">No</label>
+                  <input type="radio" class="btn-check" name="q_${q.question_id}" id="q_${q.question_id}_yes" value="Yes">
+                  <label class="btn btn-outline-danger" for="q_${q.question_id}_yes">Yes</label>
+                </div>
+              </div>
+            </div>
+          `).join("");
+        });
+
+      // Populate donors list in eligibility tab
+      fetch("/api/donors-list")
+        .then(r => r.json())
+        .then(donors => {
+          const select = document.getElementById("eligibility-donor-select");
+          select.innerHTML = donors.map(d => `<option value="${d.donor_id}">#${d.donor_id} - ${d.name} (${d.blood_group}, ${d.status})</option>`).join("");
+        });
+    }
+
+    function submitEligibilityAnswers(e) {
+      e.preventDefault();
+      const donorId = document.getElementById("eligibility-donor-select").value;
+      const answers = {};
+      for (let i = 1; i <= 9; i++) {
+        const checked = document.querySelector(`input[name="q_${i}"]:checked`);
+        answers[i] = checked ? checked.value : "No";
+      }
+
+      const feedback = document.getElementById("eligibility-feedback");
+      feedback.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Evaluating eligibility via sp_evaluate_eligibility...';
+
+      fetch("/api/eligibility/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ donor_id: donorId, answers: answers })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          const badgeClass = res.result === 'Eligible' ? 'bg-success' : res.result === 'Deferred' ? 'bg-warning text-dark' : 'bg-danger';
+          feedback.innerHTML = `
+            <div class="alert alert-light border py-3">
+              <h6>Outcome: <span class="badge ${badgeClass} fs-6">${res.result}</span></h6>
+              <div class="small text-muted">
+                ${res.deferred_until ? `Donor deferred until: <strong>${res.deferred_until}</strong>. Next eligible date updated.` : 'Donor status updated.'}
+              </div>
+            </div>
+          `;
+        } else {
+          feedback.innerHTML = `<div class="alert alert-danger py-2 small mb-0">${res.error_message}</div>`;
+        }
+      });
+    }
+
+    // =========================================================
+    // SEARCH & ANALYTICS
+    // =========================================================
+    function searchBanks() {
+      const group = document.getElementById("bank-blood-group").value;
+      const [lat, lng] = document.getElementById("bank-location-preset").value.split(",");
+      const radius = document.getElementById("bank-radius").value;
+      const tbody = document.querySelector("#table-banks tbody");
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Searching nearby blood banks...</td></tr>';
+
+      fetch(`/api/find-banks?blood_group=${encodeURIComponent(group)}&lat=${lat}&lng=${lng}&radius=${radius}`)
+        .then(r => r.json())
+        .then(res => {
+          if (!res.success || !res.data || res.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-warning">No blood banks found with compatible stock in this radius.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = res.data.map(b => `
+            <tr>
+              <td class="fw-semibold text-dark">${b.name}</td>
+              <td><span class="badge ${b.ownership === 'Govt' ? 'bg-primary' : b.ownership === 'Charitable' ? 'bg-success' : 'bg-secondary'}">${b.ownership}</span></td>
+              <td><code>${b.phone}</code></td>
+              <td><span class="fw-bold text-danger">${b.distance_km}</span> km</td>
+              <td><span class="badge bg-danger fs-6">${b.compatible_units} units</span></td>
+              <td><span class="badge bg-success-subtle text-success">Available</span></td>
+            </tr>
+          `).join("");
+        })
+        .catch(err => {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Error: ${err.message}</td></tr>`;
+        });
+    }
+
+    function searchDonors() {
+      const group = document.getElementById("donor-blood-group").value;
+      const [lat, lng] = document.getElementById("donor-location-preset").value.split(",");
+      const radius = document.getElementById("donor-radius").value;
+      const tbody = document.querySelector("#table-donors tbody");
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Searching eligible donors...</td></tr>';
+
+      fetch(`/api/find-donors?blood_group=${encodeURIComponent(group)}&lat=${lat}&lng=${lng}&radius=${radius}`)
+        .then(r => r.json())
+        .then(res => {
+          if (!res.success || !res.data || res.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-warning">No eligible donors found within this radius.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = res.data.map(d => `
+            <tr>
+              <td><code>#${d.donor_id}</code></td>
+              <td class="fw-semibold">${d.first_name}</td>
+              <td><span class="badge bg-danger-subtle text-danger fw-bold">${d.blood_group}</span></td>
+              <td><span class="fw-bold">${d.distance_km}</span> km</td>
+              <td><span class="badge bg-success">Active & Eligible</span></td>
+            </tr>
+          `).join("");
+        })
+        .catch(err => {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Error: ${err.message}</td></tr>`;
+        });
+    }
+
+    function loadStockMatrix() {
+      const district = document.getElementById("stock-district").value;
+      const tbody = document.querySelector("#table-stock-matrix tbody");
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">Loading inventory...</td></tr>';
+
+      fetch(`/api/inventory?district=${encodeURIComponent(district)}`)
+        .then(r => r.json())
+        .then(data => {
+          const shortageAlert = document.getElementById("stock-shortage-alert");
+          const kpiShortage = document.getElementById("kpi-shortage");
+          if (data.shortages && data.shortages.length > 0) {
+            const list = data.shortages.join(", ");
+            shortageAlert.innerHTML = `<div class="alert alert-danger py-2 small mb-3"><i class="bi bi-exclamation-octagon-fill me-1"></i> <strong>CRITICAL SHORTAGE in ${district}:</strong> Zero units available for blood group(s): <strong>${list}</strong></div>`;
+            kpiShortage.textContent = `${list} (0 units in ${district})`;
+          } else {
+            shortageAlert.innerHTML = `<div class="alert alert-success py-2 small mb-3"><i class="bi bi-check-circle-fill me-1"></i> All blood groups currently have units available in ${district}.</div>`;
+            kpiShortage.textContent = "Adequate Stock";
+            kpiShortage.className = "mb-0 fw-bold text-success";
+          }
+
+          if (!data.matrix || data.matrix.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No records for this district.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = data.matrix.map(row => `
+            <tr>
+              <td class="text-start fw-semibold">${row.bank}</td>
+              <td class="${row['A+'] == 0 ? 'text-danger fw-bold' : ''}">${row['A+']}</td>
+              <td class="${row['A-'] == 0 ? 'text-danger fw-bold' : ''}">${row['A-']}</td>
+              <td class="${row['B+'] == 0 ? 'text-danger fw-bold' : ''}">${row['B+']}</td>
+              <td class="${row['B-'] == 0 ? 'text-danger fw-bold' : ''}">${row['B-']}</td>
+              <td class="${row['O+'] == 0 ? 'text-danger fw-bold' : ''}">${row['O+']}</td>
+              <td class="${row['O-'] == 0 ? 'text-danger fw-bold' : ''}">${row['O-']}</td>
+              <td class="${row['AB+'] == 0 ? 'text-danger fw-bold' : ''}">${row['AB+']}</td>
+              <td class="${row['AB-'] == 0 ? 'text-danger fw-bold' : ''}">${row['AB-']}</td>
+            </tr>
+          `).join("");
+        });
+    }
+
+    function loadCamps() {
+      fetch("/api/camps")
+        .then(r => r.json())
+        .then(camps => {
+          const tbody = document.querySelector("#table-camps tbody");
+          const select = document.getElementById("book-camp-select");
+
+          if (!camps || camps.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No upcoming camps scheduled.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = camps.map(c => `
+            <tr>
+              <td class="fw-semibold">${c.title}</td>
+              <td><code>${c.camp_date}</code></td>
+              <td>${c.venue}</td>
+              <td><small class="text-muted">${c.conducted_by}</small></td>
+              <td><span class="badge ${c.seats_left > 0 ? 'bg-success' : 'bg-danger'}">${c.seats_left} / ${c.capacity}</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="selectCampForBooking(${c.camp_id})">Select</button>
+              </td>
+            </tr>
+          `).join("");
+
+          select.innerHTML = camps.map(c => `<option value="${c.camp_id}">#${c.camp_id} - ${c.title} (${c.seats_left} seats)</option>`).join("");
+        });
+    }
+
+    function selectCampForBooking(campId) {
+      document.getElementById("book-camp-select").value = campId;
+      document.getElementById("book-donor-id").focus();
+    }
+
+    // Camps seat booking feedback fix: treat success: true as positive confirmation!
+    function bookCampSubmit(e) {
+      e.preventDefault();
+      const campId = document.getElementById("book-camp-select").value;
+      const donorId = document.getElementById("book-donor-id").value;
+      const feedback = document.getElementById("booking-feedback");
+      feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Processing booking...';
+
+      fetch("/api/book-camp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ camp_id: campId, donor_id: donorId })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          feedback.innerHTML = `<div class="alert alert-success py-2 small mb-0"><i class="bi bi-check-circle-fill me-1"></i> ${res.message || 'Seat booked successfully! Transaction committed.'}</div>`;
+          loadCamps();
+        } else {
+          feedback.innerHTML = `<div class="alert alert-danger py-2 small mb-0"><i class="bi bi-x-circle-fill me-1"></i> <strong>Trigger/Constraint Rejection:</strong> ${res.error_message}</div>`;
+        }
+      })
+      .catch(err => {
+        feedback.innerHTML = `<div class="alert alert-danger py-2 small mb-0">Error: ${err.message}</div>`;
+      });
+    }
+
+    function loadLeaderboard() {
+      fetch("/api/leaderboard")
+        .then(r => r.json())
+        .then(data => {
+          const tbody = document.querySelector("#table-leaderboard tbody");
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No donor records found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = data.map(d => {
+            const tierClass = `badge-tier-${(d.tier || 'starter').toLowerCase()}`;
+            return `
+              <tr>
+                <td class="fw-bold">${d.position == 1 ? '🥇 1' : d.position == 2 ? '🥈 2' : d.position == 3 ? '🥉 3' : '#' + d.position}</td>
+                <td class="fw-semibold">${d.name}</td>
+                <td><span class="badge bg-danger-subtle text-danger">${d.blood_group}</span></td>
+                <td><span class="fw-bold">${d.donations}</span> donations</td>
+                <td><span class="text-success fw-bold">${d.points} pts</span></td>
+                <td><span class="badge ${tierClass} px-2 py-1">${d.tier}</span></td>
+              </tr>
+            `;
+          }).join("");
+        });
+    }
+
+    function loadPresets() {
+      fetch("/api/demo-queries")
+        .then(r => r.json())
+        .then(presets => {
+          const select = document.getElementById("sql-presets");
+          select.innerHTML = '<option value="">-- Choose a query --</option>';
+          presets.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.sql;
+            opt.textContent = `[${p.category}] ${p.title}`;
+            select.appendChild(opt);
+          });
+        });
+    }
+
+    function runSQL() {
+      const sql = document.getElementById("sql-input").value.trim();
+      const output = document.getElementById("sql-output");
+      const meta = document.getElementById("sql-meta");
+      if (!sql) return;
+
+      output.innerHTML = '<div class="text-muted small p-3"><div class="spinner-border spinner-border-sm text-danger me-2"></div> Executing SQL on MySQL 8.0...</div>';
+      meta.textContent = "";
+
+      const start = performance.now();
+
+      fetch("/api/execute-sql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sql: sql })
+      })
+      .then(r => r.json())
+      .then(res => {
+        const elapsed = (performance.now() - start).toFixed(1);
+        meta.textContent = `Execution time: ${elapsed} ms`;
+
+        if (!res.success) {
+          output.innerHTML = `
+            <div class="alert alert-danger m-3 mb-0">
+              <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> MySQL Error ${res.error_code || ''}</h6>
+              <div class="font-monospace small">${res.error_message}</div>
+            </div>
+          `;
+          return;
+        }
+
+        if (!res.results || res.results.length === 0) {
+          output.innerHTML = '<div class="p-3 text-muted small">Statement executed successfully with no returned rows.</div>';
+          return;
+        }
+
+        let html = "";
+        res.results.forEach((rs, idx) => {
+          if (rs.type === "mutation") {
+            html += `<div class="alert alert-success m-3 mb-2 py-2 small"><i class="bi bi-check2-circle me-1"></i> Statement ${idx + 1}: ${rs.affected_rows} row(s) affected.</div>`;
+          } else if (rs.type === "select") {
+            html += `
+              <div class="px-3 pt-3 pb-1 d-flex justify-content-between align-items-center">
+                <span class="badge bg-secondary">Result Set ${idx + 1}</span>
+                <span class="small text-muted">${rs.row_count} rows returned</span>
+              </div>
+              <div class="table-responsive p-3 pt-1">
+                <table class="table table-sm table-striped table-bordered align-middle mb-0 font-monospace small">
+                  <thead class="table-dark">
+                    <tr>${rs.columns.map(c => `<th>${c}</th>`).join("")}</tr>
+                  </thead>
+                  <tbody>
+                    ${rs.rows.map(row => `
+                      <tr>${rs.columns.map(c => `<td>${row[c] !== null ? row[c] : '<span class="text-muted fst-italic">NULL</span>'}</td>`).join("")}</tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }
+        });
+        output.innerHTML = html;
+      })
+      .catch(err => {
+        output.innerHTML = `<div class="alert alert-danger m-3">Network error: ${err.message}</div>`;
+      });
+    }
+  </script>
+</body>
+</html>
