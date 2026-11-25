@@ -46,7 +46,7 @@
 - Verified `RaktSutra_Project.zip` updated with 9 core files.
 
 ### What's next
-- Await user command before pushing latest commit to GitHub.
+- All changes synced and live on GitHub at `https://github.com/gaurav-066/RaktSutra`.
 
 
 
